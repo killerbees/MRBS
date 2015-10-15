@@ -63,32 +63,57 @@
        * appropriate message is printed.
        */
       function listUpcomingEvents() {
-		var now = new Date();
-		var earlier = new Date(now);
-		earlier.setHours(0);
+		
+		var earlier = new Date();
+		var later = new Date(earlier);
 		earlier.setMinutes(0);
-		appendPre("\n"+now.toISOString()+"\n"+earlier.toISOString());
+		earlier.setHours(earlier.getHours()-4);
+		later.setMinutes(0);
+		later.setHours(later.getHours()+24);
+		
+		appendPre("\n"+later.toISOString()+"\n"+earlier.toISOString()+'\n');
+		var calreq = gapi.client.calendar.calendars.get({
+			'calendarId': 'openbet.com_2d38333431333733362d313434@resource.calendar.google.com'
+		});
+		calreq.execute(function(resp) {
+          var cal = resp;
+		  appendPre(resp.summary+"\n");
+		  
+		 });
         var request = gapi.client.calendar.events.list({
           'calendarId': 'openbet.com_2d38333431333733362d313434@resource.calendar.google.com',
 		  'timeMin': earlier.toISOString(),
-		  'timeMax': (now).toISOString(),
+		  'timeMax': (later).toISOString(),
           'showDeleted': false,
           'singleEvents': true,
+		  'fields':'items(summary,organizer(displayName,email),start,end)',
+		  'timeZone':'Europe/London',
+		  'orderBy':'startTime',
           'maxResults': 10
         });
 
         request.execute(function(resp) {
           var events = resp.items;
-          appendPre('Upcoming events:');
+          appendPre(events.length+' Upcoming events:\n');
 
           if (events.length > 0) {
             for (i = 0; i < events.length; i++) {
               var event = events[i];
-              var when = event.start.dateTime;
-              if (!when) {
-                when = event.start.date;
+              var estart = event.start.dateTime;
+			  if (!estart) {
+                estart = event.start.date;
               }
-              appendPre(event.summary + ' (' + when + ')')
+			  var eend = event.end.dateTime;
+			  if (!eend) {
+                eend = event.end.date;
+              }
+			  var esd=new Date(estart);
+			  appendPre(esd.toDateString()+" ");
+			  appendPre(esd.getHours()+":"+esd.getMinutes());
+			  appendPre(' - ');
+			  var eed=new Date(eend);
+			  appendPre(eed.getHours()+":"+eed.getMinutes());
+              appendPre(' '+ event.summary + '\n     ' + event.organizer.displayName + ' (' + event.organizer.email+')\n\n');
             }
           } else {
             appendPre('No upcoming events found.');
@@ -105,7 +130,7 @@
        */
       function appendPre(message) {
         var pre = document.getElementById('output');
-        var textContent = document.createTextNode(message + '\n');
+        var textContent = document.createTextNode(message);
         pre.appendChild(textContent);
       }
 
@@ -121,6 +146,6 @@
         Authorize
       </button>
     </div>
-    <pre id="output">tst</pre>
+    <pre id="output"></pre>
   </body>
 </html>
