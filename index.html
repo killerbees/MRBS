@@ -16,34 +16,33 @@
 		  var uluru = {lat: 55.51025, lng: -4.51145};
 		 var map, infoWindow;
 		 
-		 function openForm(){
-			alert(map.getCenter());
-		 }
-		 
-		
-      function initMap() {
-        map = new google.maps.Map(document.getElementById('map'), {
-          center: uluru,
-          zoom: 19
-        });
-		 map.addListener('click', function() {
-          map.setZoom(19);
-          map.setCenter(marker.getPosition());
-		  openForm()
-        });
-      
-        infoWindow = new google.maps.InfoWindow;
-var contentString = '<div id="content">'+
+		var contentString = '<div id="content">'+
             '<div id="siteNotice">'+
             '</div>'+
             '<h1 id="firstHeading" class="firstHeading">You Are Here!</h1>'+
             '<div id="bodyContent">'+
             '<p>Wanna Add A Note?</p>'+
-            '<p onclick="openForm()">'+
-            '<button onclick="openForm()">Click me</button>'
+            '<textarea/>'
             '(c)Killerbees 2017.</p>'+
             '</div>'+
             '</div>';
+		 function openForm(event){
+			infoWindow.setPosition(event.latLng);
+            infoWindow.setContent(contentString);
+            infoWindow.open(map);
+		}	
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: uluru,
+          zoom: 19
+        });
+		 map.addListener('click', function(event) {
+          openForm(event);
+		  
+        });
+		infoWindow = new google.maps.InfoWindow;
+      
+   
         // Try HTML5 geolocation.
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(function(position) {
@@ -52,9 +51,7 @@ var contentString = '<div id="content">'+
               lng: position.coords.longitude
             };
 
-            infoWindow.setPosition(pos);
-            infoWindow.setContent(contentString);
-            infoWindow.open(map);
+            
             map.setCenter(pos);
           }, function() {
             handleLocationError(true, infoWindow, map.getCenter());
