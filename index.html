@@ -3,7 +3,7 @@
   <head>
     <style>
        #map {
-        height: 400px;
+        height: 800px;
         width: 100%;
        }
     </style>
@@ -15,11 +15,23 @@
       
 		  var uluru = {lat: 55.51025, lng: -4.51145};
 		 var map, infoWindow;
+		 
+		 function openForm(){
+			alert(map.getCenter());
+		 }
+		 
+		
       function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
           center: uluru,
           zoom: 19
         });
+		 map.addListener('click', function() {
+          map.setZoom(19);
+          map.setCenter(marker.getPosition());
+		  openForm()
+        });
+      
         infoWindow = new google.maps.InfoWindow;
 var contentString = '<div id="content">'+
             '<div id="siteNotice">'+
